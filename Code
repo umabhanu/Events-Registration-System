@@ -1,0 +1,2909 @@
+Includes/db_connect.php
+<?php
+ini_set("display_errors",0);
+error_reporting(E_ERROR);
+global $con;
+$con = mysqli_connect("127.0.0.1", "root", "", "hotel_booking_system");
+
+if (!$con) {
+    echo "Error: Unable to connect to MySQL." . PHP_EOL;
+    echo "Debugging errno: " . mysqli_connect_errno() . PHP_EOL;
+    echo "Debugging error: " . mysqli_connect_error() . PHP_EOL;
+    exit;
+}
+?>	
+
+Includes/footer.php
+
+<!-- Footer
+ ================================================== -->
+ <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="span4">
+          <div class="widget">
+            <h5>Browse pages</h5>
+            <ul class="regular">
+              <li><a href="./book_room.php">Book Room</a></li>
+              <li><a href="./room-list.php">Room Lists</a></li>
+              <li><a href="./user.php">Register</a></li>					
+              <li><a href="./login.php">Login</a></li>
+              <li><a href="./contact.php">Contact Us</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="span4">
+          <div class="widget">
+            <h5>Modules of Project</h5>
+            <ul class="regular">
+              <li><a href="#">Hotel Booking System</a></li>
+              <li><a href="#">Room Management System</a></li>
+              <li><a href="#">Customer Management System</a></li>
+              <li><a href="#">Booking Management System</a></li>					
+              <li><a href="#">User Management System</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="span4">
+          <div class="widget">
+            <!-- logo -->
+            <a class="brand logo" href="index.html" style="color: #FFFFFF; font-size: 20px; margin-top: 35px;">
+Hotel Booking System
+</a> 
+<!-- end logo -->
+ <address>
+<strong>Registered Companyname, Inc.</strong><br>
+ 1234 Somename Ave, Suite 600<br>
+San Marcos, CA, USA 94107<br>
+<abbr title="Phone">P:</abbr> (123) 456-7890
+</address>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="verybottom">
+      <div class="container">
+        <div class="row">
+          <div class="span6">
+            <p>
+              &copy; Hotel Booking System - All right reserved
+            </p>
+          </div>
+          <div class="span6">
+            <div class="credits">              
+              Designed by <a href="#">Hotel Booking System</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+
+Includes/Functions.php
+
+<?php
+session_start();
+$SERVER_PATH = "http://127.0.0.1/hotel_booking_system/";
+##Function for generating the dynamic options #######
+function get_new_optionlist($table,$id_col,$value_col,$selected=0, $cond = 1)
+{
+	global $con;
+	$SQL="SELECT * FROM $table WHERE $cond ORDER BY $value_col";
+	$rs= mysqli_query($con,$SQL);
+	$option_list="<option value=''>Please Select</option>";
+	while($data=mysqli_fetch_assoc($rs))
+	{
+		if($selected==$data[$id_col])
+		{
+			$option_list.="<option value='$data[$id_col]' selected>$data[$value_col]</option>";
+		}
+		else
+		{
+			$option_list.="<option value='$data[$id_col]'>$data[$value_col]</option>";
+		}
+	}
+	return $option_list;
+}
+##Function for generating the dynamic options #######
+function get_checkbox($name,$table,$id_col,$value_col,$selected=0)
+{
+	global $con;
+	$selected_array=explode(",",$selected);
+	$SQL="SELECT * FROM $table ORDER BY $value_col";
+	$rs= mysqli_query($con,$SQL);
+	$option_list="<div class='checkboxlist'>";
+	while($data=mysqli_fetch_assoc($rs))
+	{
+		if(in_array($data[$id_col],$selected_array))
+		{
+			$option_list.="<input type='checkbox' value='$data[$id_col]' name='".$name."[]' id='$name' checked>$data[$value_col]<br>";
+		}
+		else
+		{
+			$option_list.="<input type='checkbox' value='$data[$id_col]' name='".$name."[]' id='$name'>$data[$value_col]<br>";
+		}
+	}
+	return $option_list."</div>";
+}
+?>
+Includes/Header.php
+
+ <?php
+	ini_set("display_errors",0);
+	error_reporting(E_ERROR);
+	session_start();
+	include_once("db_connect.php");
+	include_once("functions.php");
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Hotel Booking System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- styles -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,600,700" rel="stylesheet">
+  <link href="assets/css/bootstrap.css" rel="stylesheet">
+  <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+  <link href="assets/css/docs.css" rel="stylesheet">
+  <link href="assets/css/prettyPhoto.css" rel="stylesheet">
+  <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+  <link href="assets/css/flexslider.css" rel="stylesheet">
+  <link href="assets/css/jquery.dataTables.min.css" rel="stylesheet">
+  <link href="assets/css/sequence.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+  <link href="assets/color/default.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="assets/css/jquery-ui.css">
+
+
+  <!-- fav and touch icons -->
+  <link rel="shortcut icon" href="assets/ico/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+
+    <!-- JavaScript Library Files -->
+    <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/jquery.easing.js"></script>
+  <script src="assets/js/google-code-prettify/prettify.js"></script>
+  <script src="assets/js/modernizr.js"></script>
+  <script src="assets/js/bootstrap.js"></script>
+  <script src="assets/js/jquery.elastislide.js"></script>
+  <script src="assets/js/sequence/sequence.jquery-min.js"></script>
+  <script src="assets/js/sequence/setting.js"></script>
+  <script src="assets/js/jquery.prettyPhoto.js"></script>
+  <script src="assets/js/application.js"></script>
+  <script src="assets/js/jquery.flexslider.js"></script>
+  <script src="assets/js/hover/jquery-hover-effect.js"></script>
+  <script src="assets/js/hover/setting.js"></script>
+  <script type="text/javascript" src="assets/js/jquery-ui.js"></script>
+  <script src="assets/js/jquery.dataTables.min.js"></script>
+
+  <!-- Template Custom JavaScript File -->
+  <script src="assets/js/custom.js"></script>
+</head>
+
+<body>
+  <header>
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <!-- logo -->
+          <a class="brand logo" href="index.php" style="color: #000000; font-size: 26px; margin-top: 35px;">
+            Hotel Booking System
+          </a>
+          <!-- end logo -->
+          <!-- top menu -->
+          <div class="navigation">
+            <nav>
+              <ul class="nav topnav">
+                <li class="dropdown"><a href="index.php">Home</a></li>
+                <li class="dropdown"><a href="about.php">About</a></li>
+                <?php if($_SESSION['user_details']['user_level_id'] == 1) {?>
+                <li class="dropdown">
+                  <a href="#">Adminstration</a>
+                  <ul class="dropdown-menu">
+                    <li><a href="user.php?type=1">Add New System User</a></li>
+                    <li><a href="user.php?type=2">Add New Customer</a></li>
+                    <li><a href="room.php">Add New Room</a></li>
+                    <li><a href="category.php">Add New Category</a></li>
+                    <li><a href="facility.php">Add New Facility</a></li>
+                  </ul>
+                </li>
+                <li class="dropdown">
+                  <a href="#">Reports</a>
+                  <ul class="dropdown-menu">
+                    <li><a href="user-report.php?type=1">System User Reports</a></li>
+                    <li><a href="user-report.php?type=2">Customer Reports</a></li>
+                    <li><a href="room-report.php">Room Reports</a></li>
+                    <li><a href="category-report.php">Category Reports</a></li>
+                    <li><a href="facility-report.php">Facility Reports</a></li>
+                    <li><a href="booking-report.php">Booking Reports</a></li>
+                  </ul>
+                </li>
+                <?php } if($_SESSION['user_details']['user_level_id'] == 2) {?>
+                  <li><a href="./book_room.php">Book Room</a></li>
+                  <li><a href="./booking-report.php">My Booking</a></li>
+                <?php } if($_SESSION['login'] == 1) {?>
+                  <li><a href="./user.php?user_id=<?php echo $_SESSION['user_details']['user_id']; ?>">My Account</a></li>
+                  <li><a href="change-password.php">Change Password</a></li>
+                  <li><a href="./lib/login.php?act=logout">Logout</a></li>
+                <?php } else { ?>
+                  <li><a href="./book_room.php">Book Room</a></li>
+                  <li><a href="./room-list.php">Room Lists</a></li>
+                  <li><a href="./user.php">Register</a></li>					
+                  <li><a href="./login.php">Login</a></li>
+                  <li><a href="./contact.php">Contact Us</a></li>
+                <?php }?>
+              </ul>
+            </nav>
+          </div>
+          <!-- end menu -->
+        </div>
+      </div>
+    </div>
+  </header>
+  ##################################################################################
+Includes/Sidebar.php
+
+<div class="contactfinder">
+	<h4 class="heading colr">Advertisemet</h4>
+	<div><img src="images/save_1.jpg" style="width: 250px"></div><br>
+</div>
+
+
+Lib/ booking.php
+
+<?php
+	include_once("../includes/db_connect.php");
+	include_once("../includes/functions.php");
+	if($_REQUEST[act]=="save_book")
+	{
+		save_book();
+		exit;
+	}
+	if($_REQUEST[act]=="delete_book")
+	{
+		delete_book();
+		exit;
+	}
+	if($_REQUEST[act]=="get_report")
+	{
+		get_report();
+		exit;
+	}
+	###Code for save book#####
+	function save_book()
+	{
+		global $con;
+		$R=$_REQUEST;
+		
+		/// Get the room details ///////
+		$SQL = "SELECT * FROM room WHERE room_id = '$R[book_room_id]'";
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data = mysqli_fetch_assoc($rs);
+		
+		/// Date and amount calculation //////
+		$dStart = new DateTime($R[book_from_date]);
+	    $dEnd  = new DateTime($R[book_to_date]);
+	    $dDiff = $dStart->diff($dEnd);
+		$totalDays = $dDiff->days;
+		$totalAmount = $totalDays * $R[book_no_rooms] * $data['room_fare'];
+		
+	    if($dDiff->format('%R') == "-")
+		{
+			die("From date should me smaller than current date.");
+		}
+		if($R[book_id])
+		{
+			$statement = "UPDATE `book` SET";
+			$cond = "WHERE `book_id` = '$R[book_id]'";
+			$msg = "Data Updated Successfully.";
+		}
+		else
+		{
+			$statement = "INSERT INTO `book` SET";
+			$cond = "";
+			$msg="Data saved successfully.";
+		}
+		$SQL=   $statement." 
+				`book_user_id` = '".$_SESSION['user_details']['user_id']."', 
+				`book_date` = now(), 
+				`book_room_id` = '$R[book_room_id]', 
+				`book_from_date` = '$R[book_from_date]', 
+				`book_to_date` = '$R[book_to_date]', 
+				`book_no_rooms` = '$R[book_no_rooms]', 
+				`book_no_persons` = '$R[book_no_persons]', 
+				`book_no_childs` = '$R[book_no_childs]', 
+				`book_name` = '$R[book_name]', 
+				`book_mobile` = '$R[book_mobile]', 
+				`book_email` = '$R[book_email]', 
+				`book_total_amount` = '$totalAmount', 
+				`book_status` = '0'".
+				 $cond;
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		if($R[book_id] == "") {
+			$book_id = mysqli_insert_id($con);
+		}
+		header("Location:../make_payment.php?book_id=".$book_id);
+	}
+#########Function for delete book##########3
+function delete_book()
+{
+	global $con;
+	/////////Delete the record//////////
+	$SQL="DELETE FROM book WHERE book_id = $_REQUEST[book_id]";
+	 mysqli_query($con,$SQL) or die(mysqli_error($con));
+	header("Location:../book-report.php?msg=Deleted Successfully.");
+}
+##############Function for reporting ##################3
+function get_report()
+{
+	global $con;
+	$fname = 'myCSV.csv';
+	$fp = fopen($fname,'w');
+	$column_name = '"ID","book_name","book_add1","book_add2","book_state","book_email","book_city","book_mobile","book_gender","book_dob","book_nl_id","book_image"'."\n\r";
+	fwrite($fp,$column_name);	
+		
+	$SQL="SELECT * FROM book,city WHERE book_city = city_id";
+	$rs= mysqli_query($con,$SQL);
+	while($data=mysqli_fetch_assoc($rs))
+	{
+		$csvdata=implode(",",$data)."\n\r";
+		fwrite($fp,$csvdata);		
+	}
+	fclose($fp);
+	header('Content-type: application/csv');
+	header("Content-Disposition: inline; filename=".$fname);
+	readfile($fname);
+}
+?>
+Lib/category.php
+
+<?php
+	include_once("../includes/db_connect.php");
+	include_once("../includes/functions.php");
+	if($_REQUEST[act]=="save_category")
+	{
+		save_category();
+		exit;
+	}
+	if($_REQUEST[act]=="delete_category")
+	{
+		delete_category();
+		exit;
+	}
+	if($_REQUEST[act]=="update_category_status")
+	{
+		update_category_status();
+		exit;
+	}
+	
+	###Code for save category#####
+	function save_category()
+	{
+		global $con;
+		$R=$_REQUEST;						
+		if($R[category_id])
+		{
+			$statement = "UPDATE `category` SET";
+			$cond = "WHERE `category_id` = '$R[category_id]'";
+			$msg = "Data Updated Successfully.";
+		}
+		else
+		{
+			$statement = "INSERT INTO `category` SET";
+			$cond = "";
+			$msg="Data saved successfully.";
+		}
+		$SQL=   $statement." 
+				`category_name` = '$R[category_name]', 
+				`category_description` = '$R[category_description]'". 
+				 $cond;
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		header("Location:../category-report.php?msg=$msg");
+	}
+#########Function for delete category##########3
+function delete_category()
+{	
+	global $con;
+	/////////Delete the record//////////
+	$SQL="DELETE FROM category WHERE category_id = $_REQUEST[category_id]";
+	 mysqli_query($con,$SQL) or die(mysqli_error($con));
+	header("Location:../category-report.php?msg=Deleted Successfully.");
+}
+?>
+Lib/facility.php
+
+<?php
+	include_once("../includes/db_connect.php");
+	include_once("../includes/functions.php");
+	if($_REQUEST[act]=="save_facility")
+	{
+		save_facility();
+		exit;
+	}
+	if($_REQUEST[act]=="delete_facility")
+	{
+		delete_facility();
+		exit;
+	}
+	if($_REQUEST[act]=="update_facility_status")
+	{
+		update_facility_status();
+		exit;
+	}
+	
+	###Code for save facility#####
+	function save_facility()
+	{
+		global $con;
+		$R=$_REQUEST;						
+		if($R[facility_id])
+		{
+			$statement = "UPDATE `facility` SET";
+			$cond = "WHERE `facility_id` = '$R[facility_id]'";
+			$msg = "Data Updated Successfully.";
+		}
+		else
+		{
+			$statement = "INSERT INTO `facility` SET";
+			$cond = "";
+			$msg="Data saved successfully.";
+		}
+		$SQL=   $statement." 
+				`facility_name` = '$R[facility_name]', 
+				`facility_description` = '$R[facility_description]'". 
+				 $cond;
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		header("Location:../facility-report.php?msg=$msg");
+	}
+#########Function for delete facility##########3
+function delete_facility()
+{	
+	global $con;
+	/////////Delete the record//////////
+	$SQL="DELETE FROM facility WHERE facility_id = $_REQUEST[facility_id]";
+	 mysqli_query($con,$SQL) or die(mysqli_error($con));
+	header("Location:../facility-report.php?msg=Deleted Successfully.");
+}
+?>
+
+Lib/image.php
+<?php
+	session_start();
+	include_once("../includes/db_connect.php");
+	include_once("../includes/functions.php");
+	if($_REQUEST[act]=="save_image")
+	{
+		save_image();
+		exit;
+	}
+	if($_REQUEST[act]=="delete_image")
+	{
+		delete_image();
+		exit;
+	}
+	###Code for save image#####
+	function save_image()
+	{
+		global $con;
+		$R=$_REQUEST;
+		/////////////////////////////////////
+		$image_name = $_FILES[image_name][name];
+		$location = $_FILES[image_name][tmp_name];
+		if($image_name!="")
+		{
+			move_uploaded_file($location,"../uploads/".$image_name);
+		}
+		else
+		{
+			$image_name = $R[avail_image];
+		}
+		if($R[image_id])
+		{
+			$statement = "UPDATE `image` SET";
+			$cond = "WHERE `image_id` = '$R[image_id]'";
+			$msg = "Data Updated Successfully.";
+			$condQuery = "";
+		}
+		else
+		{
+			$statement = "INSERT INTO `image` SET";
+			$msg="Data saved successfully.";
+		}
+		$SQL=   $statement." 
+				`image_room_id` = '$R[image_room_id]', 
+				`image_name` = '$image_name', 
+				`image_title` = '$R[image_title]'". 
+				 $cond;
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		header("Location:../image-report.php?msg=$msg");
+	}
+#########Function for delete image##########3
+function delete_image()
+{
+	global $con;
+	$SQL="SELECT * FROM image WHERE image_id = $_REQUEST[image_id]";
+	$rs= mysqli_query($con,$SQL);
+	$data=mysqli_fetch_assoc($rs);
+	
+	/////////Delete the record//////////
+	$SQL="DELETE FROM image WHERE image_id = $_REQUEST[image_id]";
+	 mysqli_query($con,$SQL) or die(mysqli_error($con));
+	
+	//////////Delete the image///////////
+	if($data[image_name])
+	{
+		unlink("../uploads/".$data[image_name]);
+	}
+	header("Location:../image-report.php?msg=Deleted Successfully.");
+}
+?>
+
+
+Lib/login.php
+
+<?php
+	session_start();
+	
+	include_once("../includes/db_connect.php");
+	if($_REQUEST[act]=="check_login")
+	{
+		check_login();
+	}
+	if($_REQUEST[act]=="logout")
+	{
+		logout();
+	}
+	if($_REQUEST[act] == "change_password")
+	{
+		change_password();
+	}
+####Function check user#######
+function check_login()
+{
+	global $con;
+	$user_user=$_REQUEST[user_user];
+	$user_password=$_REQUEST[user_password];
+	$SQL="SELECT * FROM user WHERE user_username = '$user_user' AND user_password = '$user_password'";
+	$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+	if(mysqli_num_rows($rs))
+	{
+		$_SESSION[login]=1;
+		$_SESSION['user_details'] = mysqli_fetch_assoc($rs);
+		header("Location:../index.php");
+	}
+	else
+	{
+		header("Location:../login.php?msg=Invalid User and Password.");
+	}
+}
+####Function logout####
+function logout()
+{
+	$_SESSION[login]=0;
+	$_SESSION['user_details'] = 0;
+	header("Location:../login.php?msg=Logout Successfullly.");
+}
+#####Function for changing the password ####
+function change_password() {
+	global $con;
+	$R = $_REQUEST;
+	if($R['user_confirm_password'] != $R['user_new_password']) {
+		header("Location:../change-password.php?msg=Your new passsword and confirm password does not match!!!");
+		exit;
+	}
+	$SQL = "UPDATE `user` SET user_password = '$R[user_new_password]' WHERE `user_id` = ".$_SESSION['user_details']['user_id'];
+	$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+	header("Location:../change-password.php?msg=Your Password Changed Successfully !!!");
+	print $SQL;
+	die;
+}
+?>
+
+
+Lib/room.php
+
+<?php
+	include_once("../includes/db_connect.php");
+	include_once("../includes/functions.php");
+	if($_REQUEST[act]=="save_room")
+	{
+		save_room();
+		exit;
+	}
+	if($_REQUEST[act]=="delete_room")
+	{
+		delete_room();
+		exit;
+	}
+	
+	###Code for save room#####
+	function save_room()
+	{
+		global $con;
+		$R=$_REQUEST;
+		$image_name = $_FILES[room_image][name];
+		$location = $_FILES[room_image][tmp_name];
+		if($image_name!="")
+		{
+			move_uploaded_file($location,"../uploads/".$image_name);
+		}
+		else
+		{
+			$image_name = $R[avail_image];
+		}
+		$facility_id = implode(",",$R['room_facility_id']);
+		if($R[room_id])
+		{
+			$statement = "UPDATE `room` SET";
+			$cond = "WHERE `room_id` = '$R[room_id]'";
+			$msg = "Data Updated Successfully.";
+		}
+		else
+		{
+			$statement = "INSERT INTO `room` SET";
+			$cond = "";
+			$msg="Data saved successfully.";
+		}
+		
+		$SQL=   $statement." 
+				`room_category_id` = '$R[room_category_id]', 
+				`room_title` = '$R[room_title]',
+				`room_facility_id` = '$facility_id', 
+				`room_name` = '$R[room_name]',
+				`room_no_of_beds` = '$R[room_no_of_beds]',				
+				`room_max_adult` = '$R[room_max_adult]',
+				`room_max_child` = '$R[room_max_child]',
+				`room_fare` = '$R[room_fare]',
+				`room_image` = '$image_name',
+				`room_description` = '$R[room_description]'". 
+				 $cond;
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		header("Location:../room-report.php?msg=$msg");
+	}
+#########Function for delete room##########3
+function delete_room()
+{	
+	global $con;
+	/////////Delete the record//////////
+	$SQL="DELETE FROM room WHERE room_id = $_REQUEST[room_id]";
+	 mysqli_query($con,$SQL) or die(mysqli_error($con));
+	header("Location:../room-report.php?msg=Deleted Successfully.");
+}
+?>
+
+
+Lib/user.php
+
+<?php
+	session_start();
+	include_once("../includes/db_connect.php");
+	include_once("../includes/functions.php");
+	if($_REQUEST[act]=="save_user")
+	{
+		save_user();
+		exit;
+	}
+	if($_REQUEST[act]=="delete_user")
+	{
+		delete_user();
+		exit;
+	}
+	if($_REQUEST[act]=="get_report")
+	{
+		get_report();
+		exit;
+	}
+	###Code for save user#####
+	function save_user()
+	{
+		global $con;
+		$R=$_REQUEST;
+		///Checking Username Exits or not ////
+		$SQL="SELECT * FROM user WHERE user_username = '$_REQUEST[user_username]'";
+		$rs= mysqli_query($con,$SQL);
+		$data=mysqli_fetch_assoc($rs);
+		if($data['user_username'] && $R['user_id'] != $_SESSION['user_details']['user_id']) {
+			header("Location:../user.php?msg=Username Already Exits. Kindly choose another....");
+			return;
+		}
+		/////////////////////////////////////
+		$image_name = $_FILES[user_image][name];
+		$location = $_FILES[user_image][tmp_name];
+		if($image_name!="")
+		{
+			move_uploaded_file($location,"../uploads/".$image_name);
+		}
+		else
+		{
+			$image_name = $R[avail_image];
+		}
+		if($R[user_level_id] == "" || !isset($R[user_level_id]))
+		{
+			$R[user_level_id] = 2;
+		}
+		if($R[user_id])
+		{
+			$statement = "UPDATE `user` SET";
+			$cond = "WHERE `user_id` = '$R[user_id]'";
+			$msg = "Data Updated Successfully.";
+			$condQuery = "";
+		}
+		else
+		{
+			$statement = "INSERT INTO `user` SET";
+			$condQuery = "`user_username` = '$R[user_username]', 
+						  `user_password` = '$R[user_password]',"; 
+			$cond = "";
+			$msg="Data saved successfully.";
+		}
+		$SQL=   $statement." 
+				`user_level_id` = '$R[user_level_id]', 
+				".
+				 $condQuery
+				 ."
+				`user_name` = '$R[user_name]', 
+				`user_add1` = '$R[user_add1]', 
+				`user_add2` = '$R[user_add2]', 
+				`user_city` = '$R[user_city]', 
+				`user_state` = '$R[user_state]', 
+				`user_country` = '$R[user_country]', 
+				`user_email` = '$R[user_email]', 
+				`user_mobile` = '$R[user_mobile]', 
+				`user_gender` = '$R[user_gender]', 
+				`user_dob` = '$R[user_dob]',
+				`user_image` = '$image_name'". 
+				 $cond;
+		$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+		
+		if($_SESSION['login']!=1)
+		{
+			header("Location:../login.php?msg=You are registered successfully. Login with your credential !!!");
+			exit;
+		}
+		else if($_SESSION['user_details']['user_level_id'] == 3) {
+			header("Location:../user.php?user_id=".$_SESSION['user_details']['user_id']."&msg=Your account updated successfully !!!");
+			exit;
+		}
+		header("Location:../user-report.php?msg=$msg&type=$R[user_level_id]");
+	}
+#########Function for delete user##########3
+function delete_user()
+{
+	global $con;
+	$SQL="SELECT * FROM user WHERE user_id = $_REQUEST[user_id]";
+	$rs= mysqli_query($con,$SQL);
+	$data=mysqli_fetch_assoc($rs);
+	
+	/////////Delete the record//////////
+	$SQL="DELETE FROM user WHERE user_id = $_REQUEST[user_id]";
+	 mysqli_query($con,$SQL) or die(mysqli_error($con));
+	
+	//////////Delete the image///////////
+	if($data[user_image])
+	{
+		unlink("../uploads/".$data[user_image]);
+	}
+	header("Location:../user-report.php?msg=Deleted Successfully.&type=$data[user_level_id]");
+}
+?>
+
+
+About.php
+
+<?php 
+	include_once("includes/header.php"); 
+?> 
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>About Hotel Booking System</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+		<h4 class="heading colr">About Hotel Booking System</h4>
+		<div style="font-size:12px;">
+			<p>
+			Online hotel reservations are a popular method for booking hotel rooms. Travelers can book rooms on a computer by using online security to protect their privacy and financial information and by using several online travel agents to compare prices and facilities at different hotels.
+			</p>
+			<p>
+			Prior to the Internet, travelers could write, telephone the hotel directly, or use a travel agent to make a reservation. Nowadays, online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. Many also allow reviews of the traveler to be recorded with the online travel agent.
+			</p>
+			<p>
+			Online hotel reservations are also helpful for making last minute travel arrangements. Hotels may drop the price of a room if some rooms are still available. There are several websites that specialize in searches for deals on rooms.
+			</p>
+			<p>
+			Large hotel chains typically have direct connections to the airline national distribution systems (GDS) (Sabre, Galileo, Amadeus, and Worldspan). These in turn provide hotel information directly to the hundreds of thousands of travel agents that align themselves with one of these systems. Individual hotels and small hotel chains often cannot afford the expense of these direct connections and turn to other companies to provide the connections.
+			</p>
+			<p>
+			Several large online travel sites are, in effect, travel agencies. These sites send the hotels' information and rates downstream to literally thousands of online travel sites, most of which act as travel agents. They can then receive commission payments from the hotels for any business booked on their websites.
+			</p>
+		</div>
+	</div>
+	</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+Book_room.php
+
+<?php 
+	ob_start();
+	include_once("includes/header.php"); 
+
+	if($_SESSION['login'] == 0 || $_SESSION['login']  == null || !isset($_SESSION['login'])) {
+		header("Location:login.php?msg=Login first to book your room !!!");
+	} 
+	$R = $_REQUEST;
+	if(isset($R['book_from_date'])) {
+		$SQL="SELECT * FROM room,category where room_category_id = category_id";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+	}
+	global $SERVER_PATH;
+?> 
+<script>
+  jQuery(function() {
+    jQuery( "#book_from_date" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+       yearRange: "-0:+1",
+       dateFormat: 'yy-mm-dd'
+    });
+	jQuery( "#book_to_date" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+       yearRange: "-0:+1",
+       dateFormat: 'yy-mm-dd'
+    });
+  });
+</script>
+<style>
+.room-title {
+	font-weight:bold;
+	text-decoration:underline;
+	margin-bottom:10px;
+}
+p {
+	margin:0 0 10px;
+}
+</style>
+<section id="subintro">
+<div class="jumbotron subhead" id="overview">
+	<div class="container">
+		<div class="row">
+		<div class="span12">
+			<div class="centered">
+				<h3>Search Room</h3>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Search Room</legend>
+				<form action="book_room.php" enctype="multipart/form-data" method="post" name="frm_room" class="form-horizontal my-forms">
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">From Date</label> 
+						<div class="controls">
+							<input name="book_from_date" id="book_from_date" type="text" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">To Date</label> 
+						<div class="controls"><input name="book_to_date" id="book_to_date" type="text" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">No Of Persons</label> 
+						<div class="controls"><input name="book_no_persons" id="drop_off" type="text" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">No. Of Clids</label> 
+						<div class="controls"><input name="book_no_childs" id="drop_off" type="text" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">No Of Rooms</label> 
+						<div class="controls"><input name="book_no_rooms" id="drop_off" type="text" required/>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<div class="control-group clear">
+						<div class="controls">
+							<button type="submit" class="btn btn-primary">Search Room</button> 
+							<button type="reset" class="btn btn-primary">Reset Form</button>
+						</div>
+					</div>
+					<input type="hidden" name="act" value="save_room">
+					<input type="hidden" name="room_id" value="<?=$data[room_id]?>">
+				</form>
+				</fieldset>
+			<?php if($_REQUEST['book_from_date']) { ?>
+				<fieldset>
+            <legend>Select Your Room</legend>
+				<?php
+					while($data = mysqli_fetch_assoc($rs))
+					{
+				?>
+					<table style="width:70%; border-bottom:1px solid #CCCCCC">
+						<tr>
+							<td><img src="<?=$SERVER_PATH.'uploads/'.$data[room_image]?>" alt="" style="width:92px; height:78px"/></td>
+							<td>
+								<div class="conts">
+									<a href="#" class="room-title"><?=$data[room_title]?></a>
+									<p>Room Type : <?=$data[category_name]?></p>
+									<p class="bold">Max Adults : <?=$data[room_max_adult]?></p>
+									<p class="bold">Max Childs : <?=$data[room_max_child]?></p>
+								</div>
+							</td>
+							<td>
+							<div style="float:right; padding:20px 57px 20px 100px; border-left:1px solid #cccccc">
+								<a href="booking_details.php?room_id=<?=$data[room_id]?>&book_from_date=<?=$_REQUEST['book_from_date'];?>&book_to_date=<?=$_REQUEST['book_to_date'];?>&book_no_rooms=<?=$_REQUEST['book_no_rooms'];?>&book_no_persons=<?=$_REQUEST['book_no_persons'];?>&book_no_childs=<?=$_REQUEST['book_no_childs'];?>" class="btn btn-success">Book The Room Now</a>
+							</div>
+							</td>
+						</tr>
+					</table>
+					<?php } ?>
+				<div class="clear"></div>
+			</div>
+			<?php } ?>
+	</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+Booking_details.php
+
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[room_id])
+	{
+		$SQL="SELECT * FROM room,category WHERE room_category_id = category_id AND room_id = $_REQUEST[room_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+	$R = $_REQUEST;
+	$userData = $_SESSION['user_details'];
+?> 
+<script>
+  jQuery(function() {
+    jQuery( "#book_from_date" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+       yearRange: "-0:+1",
+       dateFormat: 'yy-mm-dd'
+    });
+	jQuery( "#book_to_date" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+       yearRange: "-0:+1",
+       dateFormat: 'yy-mm-dd'
+    });
+  });
+</script>
+<style>
+td{
+	padding:5px;
+	text-align:center;
+	boder:1px solid;
+	margin:1px;
+	border:1px solid #101746;
+}
+th {
+	font-weight:bold;
+	color:#ffffff;
+	font-size:12px;
+	background-color:#94c045;
+	border:1px solid #FFFFFF;
+	padding:5px;
+}
+</style>
+<section id="subintro">
+<div class="jumbotron subhead" id="overview">
+	<div class="container">
+		<div class="row">
+		<div class="span12">
+			<div class="centered">
+				<h3>Selected Room Details</h3>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            	<legend>Book Your Room (Review Your Booking Details)</legend>
+				<div class="featured_news">
+					<div class="thumb" style="float:left; padding:8px"><span class="featured">&nbsp;</span><a href="#"><img src="<?=$SERVER_PATH.'uploads/'.$data[room_image]?>" alt="" style="width:149px; height:149px" /></a></div>
+					<div class="cont">						
+						<table style="border:1px solid; width:50%; float:left; padding:40px:">
+							<tr>
+								<th>Price Per Day</th>
+								<td><?=$data[room_fare]?>/-</td>
+							</tr>
+							<tr>
+								<th>Room Type</th>
+								<td><?=$data[category_name]?></td>
+							</tr>
+							<tr>
+								<th>Max Adults</th>
+								<td><?=$data[room_max_adult]?></td>
+							</tr>
+							<tr>
+								<th>Max Childs</th>
+								<td><?=$data[room_max_child]?></td>
+							</tr>
+							<tr>
+								<th>Number of Beds</th>
+								<td><?=$data[room_no_of_beds]?></td>
+							</tr>
+						</table>
+				</fieldset>
+				<fieldset>
+            	<legend>Book Your Room (Review Your Booking Details)</legend>
+				<form action="lib/booking.php" enctype="multipart/form-data" method="post" name="frm_room" class="form-horizontal my-forms">
+				<div class="control-group">
+						<label class="control-label" for="inputEmail">From Date</label> 
+						<div class="controls"><input name="book_from_date" id="book_from_date" type="text" class="bar" value="<?=$R['book_from_date']?>" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">To Date</label> 
+						<div class="controls"><input name="book_to_date" id="book_to_date" type="text" class="bar" value="<?=$R['book_to_date']?>" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">No. Of Rooms</label> 
+						<div class="controls"><input name="book_no_rooms" id="book_no_rooms" type="text" class="bar" value="<?=$R['book_no_rooms']?>" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">No. Of Person</label> 
+						<div class="controls"><input name="book_no_persons" id="book_no_persons" type="text" class="bar" value="<?=$R['book_no_persons']?>" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">No. Of Child</label> 
+						<div class="controls"><input name="book_no_childs" id="book_no_childs" type="text" class="bar" value="<?=$R['book_no_childs']?>" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">User Name</label> 
+						<div class="controls"><input name="book_name" type="text" class="bar" value="<?=$userData['user_name']?>" required/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Mobile</label> 
+						<div class="controls"><input name="book_mobile" type="text" class="bar" required  value="<?=$userData['user_mobile']?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Email</label> 
+						<div class="controls"><input name="book_email" type="text" class="bar" required value="<?=$userData['user_email']?>"/>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<div class="control-group clear">
+						<div class="controls">
+							<button type="submit" class="btn btn-primary">Book My Room</button> 
+							<button type="reset" class="btn btn-primary">Reset Form</button>
+						</div>
+					</div>
+					<input type="hidden" name="book_room_id" value="<?=$R[room_id]?>">
+					<input type="hidden" name="act" value="save_book">
+				</form>
+			</div>
+		</div>
+		</div>
+</section>
+<?php include_once("includes/footer.php"); 
+?>
+
+Booking_confirmation.php
+
+<?php 
+	include_once("includes/header.php"); 
+	
+	/// Update the booking status /////
+	$SQL = "UPDATE book SET book_status = 1 WHERE book_id = '$_REQUEST[book_id]'";
+	$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+	
+	/// Get the booking details /////
+	$SQL = "SELECT * FROM book,room,category WHERE room_category_id = category_id AND book_room_id = room_id AND book_id = '$_REQUEST[book_id]'";
+	$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+	$data = mysqli_fetch_assoc($rs);	
+?> 
+<style>
+td{
+	padding:5px;
+	text-align:center;
+	boder:1px solid;
+	margin:1px;
+	border:1px solid #101746;
+}
+th {
+	font-weight:bold;
+	color:#ffffff;
+	font-size:12px;
+	background-color:#94c045;
+	border:1px solid #FFFFFF;
+	padding:5px;
+}
+</style>
+<section id="subintro">
+<div class="jumbotron subhead" id="overview">
+	<div class="container">
+		<div class="row">
+		<div class="span12">
+			<div class="centered">
+				<h3>Hotel Booking Receipt (Your booking was successfull !!!)</h3>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Hotel Booking Receipt (Your booking was successfull !!!)</legend>
+				<table style="border:1px solid; width:60%">
+							<tr>
+								<th style="width:50%">Booking Refrence ID</th>
+								<td>10000<?=$data[book_id]?></td>
+							</tr>
+							<tr>
+								<th>Booking Date</th>
+								<td><?=$data[book_date]?></td>
+							</tr>
+							<tr>
+								<th>Name</th>
+								<td><?=$data[book_name]?></td>
+							</tr>
+							<tr>
+								<th>Mobile</th>
+								<td><?=$data[book_mobile]?></td>
+							</tr>
+							<tr>
+								<th>Email</th>
+								<td><?=$data[book_email]?></td>
+							</tr>
+							<tr>
+								<th>From Date</th>
+								<td><?=$data[book_from_date]?></td>
+							</tr>
+							<tr>
+								<th>To Date</th>
+								<td><?=$data[book_to_date]?></td>
+							</tr>
+							<tr>
+								<th>Number of Rooms</th>
+								<td><?=$data[book_no_rooms]?> Rooms</td>
+							</tr>
+							<tr>
+								<th>Total Number of Adults</th>
+								<td><?=$data[book_no_persons]?> Adults</td>
+							</tr>
+							<tr>
+								<th>Total Number of Childs</th>
+								<td><?=$data[book_no_childs]?> Children</td>
+							</tr>
+							<tr>
+								<th>Total Amount Paid</th>
+								<td><?=$data[book_total_amount]?>/-</td>
+							</tr>
+						</table>
+						<div class="control-group clear" style="margin-top:20px;">
+							<div class="controls">
+								<button type="button" class="btn btn-primary">Print</button> 
+							</div>
+						</div>
+						</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Booking_report.php
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	if($_SESSION['user_details']['user_level_id'] == 2)
+	{
+		$SQL = "SELECT * FROM book,room,category WHERE room_category_id = category_id AND book_room_id = room_id AND book_user_id = '".$_SESSION[user_details][user_id]."'";
+	}
+	else
+	{
+		$SQL = "SELECT * FROM book,room,category WHERE room_category_id = category_id AND book_room_id = room_id";
+	}
+	$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+?>
+<script>
+function delete_category(category_id)
+{
+	if(confirm("Do you want to delete the category?"))
+	{
+		this.document.frm_category.category_id.value=category_id;
+		this.document.frm_category.act.value="delete_category";
+		this.document.frm_category.submit();
+	}
+}
+</script>
+<script>
+jQuery(document).ready(function() {
+	jQuery('#mydatatable').DataTable();
+});
+</script>
+
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>Booking Report</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+			<?php
+			if($_REQUEST['msg']) { 
+			?>
+				<div class="msg"><?=$_REQUEST['msg']?></div>
+			<?php
+			}
+			?>
+			<form name="frm_category" action="lib/category.php" method="post">
+				<div class="static">
+					<table style="width:100%" id="mydatatable">
+					  <thead>
+					  <tr class="tablehead bold">
+					    <td scope="col">Booking ID</td>
+						<td scope="col">Name</td>
+						<td scope="col">Room Type</td>
+						<td scope="col">From Date</td>
+						<td scope="col">To Date</td>
+						<td scope="col">Amount</td>
+						<td scope="col">Adults</td>
+						<td scope="col">Childs</td>
+						<td scope="col">Action</td>
+					  </tr>
+					  </thead>
+					  <tbody>
+					<?php 
+					$sr_no=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					  <tr>
+						<td>10000<?=$data[book_id]?></td>
+						<td><?=$data[book_name]?></td>
+						<td><?=$data[category_name]?></td>
+						<td><?=$data[book_from_date]?></td>
+						<td><?=$data[book_to_date]?></td>
+						<td><?=$data[book_total_amount]?>/-</td>
+						<td><?=$data[book_no_persons]?> Adults</td>
+						<td><?=$data[book_no_childs]?> Children</td>
+						<td style="text-align:center">
+							<div class="btn-group">
+                               <a href="booking-confirmation.php?book_id=<?php echo $data[book_id] ?>" class="btn btn-success">View</a>
+                            </div>
+						</td>
+					  </tr>
+					<?php } ?>
+					</tbody>
+					</table>
+				</div>
+				<input type="hidden" name="act" />
+				<input type="hidden" name="category_id" />
+				</form>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Category.php
+
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[category_id])
+	{
+		$SQL="SELECT * FROM `category` WHERE category_id = $_REQUEST[category_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+?>
+<section id="subintro">
+	<div class="jumbotron subhead" id="overview">
+		<div class="container">
+			<div class="row">
+			<div class="span12">
+				<div class="centered">
+					<h3>Room Category Entry Form</h3>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Room Category Entry Form</legend>
+				<?php if($_REQUEST['msg']) { ?>
+					<div class="msg"><?=$_REQUEST['msg']?></div>
+				<?php } ?>
+				<form action="lib/category.php" enctype="multipart/form-data" method="post" name="frm_type" class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Category Title</label> 
+						<div class="controls">
+							<input name="category_name" id="category_name" type="text" class="bar" required value="<?=$data[category_name]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Category Description</label> 
+						<div class="controls"><textarea name="category_description" cols="" rows="6" required><?=$data[category_description]?></textarea>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<div class="control-group clear">
+						<div class="controls">
+							<button type="submit" class="btn btn-primary">Save Room</button> 
+							<button type="reset" class="btn btn-primary">Reset Form</button>
+						</div>
+					</div>
+					<input type="hidden" name="act" value="save_category">
+					<input type="hidden" name="category_id" value="<?=$data[category_id]?>">
+					</form>
+					</fieldset>
+	</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Category_report.php
+
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	$SQL="SELECT * FROM `category`";
+	$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+?>
+<script>
+function delete_category(category_id)
+{
+	if(confirm("Do you want to delete the category?"))
+	{
+		this.document.frm_category.category_id.value=category_id;
+		this.document.frm_category.act.value="delete_category";
+		this.document.frm_category.submit();
+	}
+}
+</script>
+<script>
+jQuery(document).ready(function() {
+	jQuery('#mydatatable').DataTable();
+});
+</script>
+
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>Room Category Report</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+			<?php
+			if($_REQUEST['msg']) { 
+			?>
+				<div class="msg"><?=$_REQUEST['msg']?></div>
+			<?php
+			}
+			?>
+			<form name="frm_category" action="lib/category.php" method="post">
+				<div class="static">
+					<table style="width:100%" id="mydatatable">
+					 <thead>
+					  <tr class="tablehead bold">
+							<td scope="col">ID</td>
+							<td scope="col">Title</td>
+							<td scope="col">Description</td>
+							<td scope="col">Action</td>
+					  </tr>
+						</thead>
+						<tbody>
+					<?php 
+					$sr_no=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					  <tr>
+						<td><?=$data[category_id]?></td>						
+						<td><?=$data[category_name]?></td>
+						<td><?=$data[category_description]?></td>
+						<td style="text-align:center">
+							<a href="category.php?category_id=<?php echo $data[category_id] ?>" class="btn btn-success">Edit</a> | <a href="Javascript:delete_category(<?=$data[category_id]?>)" class="btn btn-danger">Delete</a> </td>
+						</td>
+					  </tr>
+					<?php } ?>
+					</tbody>
+					</table>
+				</div>
+				<input type="hidden" name="act" />
+				<input type="hidden" name="category_id" />
+			</form>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+Change_password.php
+
+<?php include_once("includes/header.php"); ?> 
+<section id="subintro">
+	<div class="jumbotron subhead" id="overview">
+		<div class="container">
+			<div class="row">
+			<div class="span12">
+				<div class="centered">
+					<h3>Change Your Account Password</h3>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Change Your Account Password</legend>
+					<div class='msg'><?=$_REQUEST['msg']?></div>
+					<form action="lib/login.php" method="post" name="frm_car" class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">New Password</label> 
+						<div class="controls"><input name="user_new_password" type="password" class="bar" required /></li>
+						</div>
+					</div>
+						<div class="control-group">
+						<label class="control-label" for="inputEmail">Confirm Password</label> 
+						<div class="controls"><input name="user_confirm_password" type="password" class="bar" required /></li>
+						</div>
+					</div>
+					<div class="control-group clear">
+						<div class="controls">
+							<button type="submit" class="btn btn-primary">Change Password</button> 
+							<button type="reset" class="btn btn-primary">Reset Form</button>
+						</div>
+					</div>
+						<input type="hidden" name="act" value="change_password">
+						</form>
+					</fieldset>
+	</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Contact.php
+
+<?php include_once("includes/header.php"); ?>
+  <section id="subintro">
+    <div class="jumbotron subhead" id="overview">
+      <div class="container">
+        <div class="row">
+          <div class="span12">
+            <div class="centered">
+              <h3>Contact page</h3>
+              <p>
+               Hope you have a good stay
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="breadcrumb">
+    <div class="container">
+      <div class="row">
+        <div class="span12">
+          <ul class="breadcrumb notop">
+            <li><a href="#">Home</a><span class="divider">/</span></li>
+            <li class="active">Contact</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="maincontent">
+    <div class="container">
+      <div class="row">
+        <div class="span4">
+          <aside>
+            <div class="widget">
+              <h4>Get in touch with us</h4>
+              <ul>
+                <li><label><strong>Phone : </strong></label>
+                  <p>
+                    +123456789
+                  </p>
+                </li>
+                <li><label><strong>Email : </strong></label>
+                  <p>
+                    hm@gmail.com
+                  </p>
+                </li>
+                <li><label><strong>Adress : </strong></label>
+                  <p>
+                    san marcos
+                  </p>
+                </li>
+              </ul>
+            </div>
+            <div class="widget">
+              <h4>Social network</h4>
+              <ul class="social-links">
+                <li><a href="#" title="Twitter"><i class="icon-rounded icon-32 icon-twitter"></i></a></li>
+                <li><a href="#" title="Facebook"><i class="icon-rounded icon-32 icon-facebook"></i></a></li>
+                <li><a href="#" title="Google plus"><i class="icon-rounded icon-32 icon-google-plus"></i></a></li>
+                <li><a href="#" title="Linkedin"><i class="icon-rounded icon-32 icon-linkedin"></i></a></li>
+                <li><a href="#" title="Pinterest"><i class="icon-rounded icon-32 icon-pinterest"></i></a></li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+        <div class="span8">
+          <div id="google-map" data-latitude="40.713417" data-longitude="-74.0092125"></div>
+
+          <div class="spacer30"></div>
+
+          <div id="sendmessage">Your message has been sent. Thank you!</div>
+          <div id="errormessage"></div>
+          <form action="" method="post" role="form" class="contactForm">
+            <div class="row">
+              <div class="span4 form-group">
+                <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
+                <div class="validation"></div>
+              </div>
+
+              <div class="span4 form-group">
+                <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
+                <div class="validation"></div>
+              </div>
+              <div class="span8 form-group">
+                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" data-rule="minlen:4" data-msg="Please enter at least 8 chars of subject" />
+                <div class="validation"></div>
+              </div>
+              <div class="span8 form-group">
+                <textarea class="form-control" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
+                <div class="validation"></div>
+                <div class="text-center">
+                  <button class="btn btn-color btn-rounded" type="submit">Send message</button>
+                </div>
+              </div>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </section>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8HeI8o-c1NppZA-92oYlXakhDPYR7XMY"></script>
+  <!-- Contact Form JavaScript File -->
+  <script src="${contextPath}/resources/contactform/contactform.js"></script>
+
+  <!-- Template Custom JavaScript File -->
+  <script src="${contextPath}/resources/assets/js/custom.js"></script>
+<?php include_once("includes/footer.php"); ?>
+
+
+Contact_confirmation.php
+
+<?php include_once("includes/header.php"); ?> 
+	<div class="crumb">
+    	<p>You are Here:</p>
+        <ul>
+        	<li class="first"><a href="#">Home</a></li>
+            <li><a href="#">About Us</a></li>
+        </ul>
+    </div>
+    <div class="clear"></div>
+	<div id="content_sec">
+		<div class="col1">
+			<div class="contact">
+				<h4 class="heading colr">Contact Us</h4>
+				<div>Thank you for contacting us. We will get back to you soon !!!!</div>
+			</div>
+		</div>
+		<div class="col2">
+			<div class="contactfinder">
+				<h4 class="heading colr">Where to find us.</h4>
+				<a href="#" class="mapcont"><img src="./images/map.gif" alt="" style="width:250px;"/></a>
+				<h4>Get in touch</h4>
+				<p>
+					You’ll find us offices sitting right in <br />
+					the town centre in the middle of Guildford, Surrey.<br />
+					<br />
+					171 abc Street<br />
+					Lipsum<br />
+					Lorem<br />
+					GU5 3AB<br />
+					<br /><br />
+					+44 (0)2563 586215<br />
+					<a href="">info@lipsum.com</a><br />
+				</p>
+			</div>
+		</div>
+	</div>
+<?php include_once("includes/footer.php"); ?>
+
+
+Facility.php
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[facility_id])
+	{
+		$SQL="SELECT * FROM `facility` WHERE facility_id = $_REQUEST[facility_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+?>
+	<section id="subintro">
+	<div class="jumbotron subhead" id="overview">
+		<div class="container">
+			<div class="row">
+			<div class="span12">
+				<div class="centered">
+					<h3>Room Facility Entry Form</h3>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Room Facility Entry Form</legend>
+				<?php if($_REQUEST['msg']) { ?>
+					<div class="msg"><?=$_REQUEST['msg']?></div>
+				<?php } ?>
+				<form action="lib/facility.php" enctype="multipart/form-data" method="post" name="frm_type" class="form-horizontal">
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Facility Title</label> 
+						<div class="controls"><input name="facility_name" id="facility_name" type="text" class="bar" required value="<?=$data[facility_name]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Facility Description</label> 
+						<div class="controls"><textarea name="facility_description" cols="" rows="6" required><?=$data[facility_description]?></textarea>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<div class="control-group clear">
+						<div class="controls">
+							<button type="submit" class="btn btn-primary">Save Room</button> 
+							<button type="reset" class="btn btn-primary">Reset Form</button>
+						</div>
+					</div>
+					<input type="hidden" name="act" value="save_facility">
+					<input type="hidden" name="facility_id" value="<?=$data[facility_id]?>">
+					</form>
+					</fieldset>
+	</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Facility_report.php
+
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	$SQL="SELECT * FROM `facility`";
+	$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+?>
+<script>
+function delete_facility(facility_id)
+{
+	if(confirm("Do you want to delete the facility?"))
+	{
+		this.document.frm_facility.facility_id.value=facility_id;
+		this.document.frm_facility.act.value="delete_facility";
+		this.document.frm_facility.submit();
+	}
+}
+</script>
+<script>
+jQuery(document).ready(function() {
+	jQuery('#mydatatable').DataTable();
+});
+</script>
+
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>Room Facility Report</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+			<?php
+			if($_REQUEST['msg']) { 
+			?>
+				<div class="msg"><?=$_REQUEST['msg']?></div>
+			<?php
+			}
+			?>
+			<form name="frm_facility" action="lib/facility.php" method="post">
+				<div class="static">
+					<table style="width:100%" id="mydatatable">
+					<thead>
+						<tr class="tablehead bold">
+							<td scope="col">ID</td>
+							<td scope="col">Name</td>
+							<td scope="col">Description</td>
+							<td scope="col">Action</td>
+					  </tr>
+						</thead>
+						<tbody>
+					<?php 
+					$sr_no=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					  <tr>
+						<td><?=$data[facility_id]?></td>
+						<td><?=$data[facility_name]?></td>
+						<td><?=$data[facility_description]?></td>
+						<td style="text-align:center">
+							<a href="facility.php?facility_id=<?php echo $data[facility_id] ?>" class="btn btn-success">Edit</a> | <a href="Javascript:delete_facility(<?=$data[facility_id]?>)" class="btn btn-danger">Delete</a> </td>
+						</td>
+					  </tr>
+					<?php } ?>
+					</tbody>
+					</table>
+				</div>
+				<input type="hidden" name="act" />
+				<input type="hidden" name="facility_id" />
+				</form>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+Image.php
+
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[image_id])
+	{
+		$SQL="SELECT * FROM `image` WHERE image_id = $_REQUEST[image_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+?>
+	<div class="crumb">
+    </div>
+    <div class="clear"></div>
+	<div id="content_sec">
+		<div class="col1">
+			<div class="contact">
+				<h4 class="heading colr">Add Room Image</h4>
+				<?php if($_REQUEST['msg']) { ?>
+					<div class="msg"><?=$_REQUEST['msg']?></div>
+				<?php } ?>
+				<form action="lib/image.php" enctype="multipart/form-data" method="post" name="frm_image">
+					<ul class="forms">
+						<li class="txt">Select Room</li>
+						<li class="inputfield">
+							<select name="image_room_id" class="bar" required/>
+								<?php echo get_new_optionlist("room","room_id","room_name",$data[image_room_id]); ?>
+							</select>
+						</li>					
+					</ul>
+					<ul class="forms">
+						<li class="txt">Image Title</li>
+						<li class="inputfield"><input name="image_title" id="image_title" type="text" class="bar" required value="<?=$data[image_title]?>"/></li>
+					</ul>
+					<ul class="forms">
+						<li class="txt">Select Image</li>
+						<li class="inputfield"><input name="image_name" id="image_name" type="file" class="bar"/></li>
+					</ul>
+					<div class="clear"></div>
+					<ul class="forms">
+						<li class="txt">&nbsp;</li>
+						<li class="textfield"><input type="submit" value="Submit" class="simplebtn"></li>
+						<li class="textfield"><input type="reset" value="Reset" class="resetbtn"></li>
+					</ul>
+					<input type="hidden" name="act" value="save_image">
+					<input type="hidden" name="avail_image" value="<?=$data[image_name]?>">
+					<input type="hidden" name="image_id" value="<?=$data[image_id]?>">
+				</form>
+			</div>
+		</div>
+		<div class="col2">
+			<?php include_once("includes/sidebar.php"); ?> 
+		</div>
+	</div>
+<?php include_once("includes/footer.php"); ?>
+
+
+Image_report.php
+
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	$SQL="SELECT * FROM image, room WHERE image_room_id = room_id";
+	$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+	global $SERVER_PATH;
+?>
+<script>
+function delete_image(image_id)
+{
+	if(confirm("Do you want to delete the image?"))
+	{
+		this.document.frm_image.image_id.value=image_id;
+		this.document.frm_image.act.value="delete_image";
+		this.document.frm_image.submit();
+	}
+}
+</script>
+	<div class="crumb">
+    </div>
+    <div class="clear"></div>
+	<div id="content_sec">
+		<div class="col1" style="width:100%">
+		<div class="contact">
+				<h4 class="heading colr">Room Image Reports</h4>
+			<form name="frm_image" action="lib/image.php" method="post">
+				<div class="static">
+					<table style="width:100%">
+					  <tbody>
+					  <tr class="tablehead bold">
+						<td scope="col">Sr. No.</td>
+						<td scope="col">Image</td>
+						<td scope="col">Room No.</td>
+						<td scope="col">Title</td>
+						<td scope="col">Action</td>
+					  </tr>
+					<?php 
+					$sr_no=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					  <tr>
+						<td style="text-align:center; font-weight:bold;"><?=$sr_no++?></td>
+						<td><img src="<?=$SERVER_PATH.'uploads/'.$data[image_name]?>" style="heigh:50px; width:50px"></td>
+						<td><?=$data[room_name]?></td>
+						<td><?=$data[image_title]?></td>
+						<td style="text-align:center"><a href="image.php?image_id=<?php echo $data[image_id] ?>">Edit</a> | <a href="Javascript:delete_image(<?=$data[image_id]?>)">Delete</a> </td>
+					  </tr>
+					<?php } ?>
+					</tbody>
+					</table>
+				</div>
+				<input type="hidden" name="act" />
+				<input type="hidden" name="image_id" />
+			</form>
+		</div>
+		</div>
+	</div>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Index.php
+
+<?php 
+include_once("includes/header.php"); 
+include_once("includes/db_connect.php"); 
+global $SERVER_PATH;
+?> 
+<section id="intro">
+    <div class="jumbotron masthead">
+      <div class="container">
+        <!-- slider navigation -->
+        <div class="sequence-nav">
+          <div class="prev">
+            <span></span>
+          </div>
+          <div class="next">
+            <span></span>
+          </div>
+        </div>
+        <!-- end slider navigation -->
+        <div class="row">
+          <div class="span12">
+            <div id="slider_holder">
+              <div id="sequence">
+                <ul>
+                  <!-- Layer 1 -->
+                  <li>
+                    <div class="info animate-in">
+                      <h2>Hotel Booking</h2>
+                      <br>
+                      <h3>Hotel Booking System</h3>
+                      <p>
+                        A full solution for providing all facility of Hotel Booking System
+                      </p>
+                      <a class="btn btn-success" href="#">Learn more &raquo;</a>
+                    </div>
+                    <img class="slider_img animate-in" src="assets/img/slides/sequence/img-1.jpg" alt="" style="height:300px; width:600px; margin-top:45px;">
+                  </li>
+                  <!-- Layer 2 -->
+                  <li>
+                    <div class="info">
+                      <h2>Room Management</h2>
+                      <br>
+                      <h3>Manage your Rooms</h3>
+                      <p>
+                        Manage your room bookings on single place
+                      </p>
+                      <a class="btn btn-success" href="#">Learn more &raquo;</a>
+                    </div>
+                    <img class="slider_img" src="assets/img/slides/sequence/img-2.jpg" alt="" style="height:300px; width:600px; margin-top:45px;">
+                  </li>
+                  <!-- Layer 3 -->
+                  <li>
+                    <div class="info">
+                      <h2>Room Booking</h2>
+                      <br>
+                      <h3>Easy way to book a room</h3>
+                      <p>
+                        Easy navigation through the pages to help make booking a room simpler.
+                      </p>
+                      <a class="btn btn-success" href="#">Learn more &raquo;</a>
+                    </div>
+                    <img class="slider_img" src="assets/img/slides/sequence/img-3.jpg" alt="" style="height:300px; width:600px; margin-top:45px;">
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <!-- Sequence Slider::END-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="maincontent">
+    <div class="container">
+      <div class="row">
+        <div class="span3 features">
+          <i class="icon-circled icon-32 icon-suitcase left active"></i>
+          <h4>Room Management</h4>
+          <div class="dotted_line">
+          </div>
+          <p class="left">
+          Online hotel reservations are a popular method for booking hotel rooms. Travelers can book rooms on a computer by using online security to protect.
+          </p>
+          <a href="#">Learn more</a>
+        </div>
+        <div class="span3 features">
+          <i class="icon-circled icon-32 icon-plane left"></i>
+          <h4>Customer Management</h4>
+          <div class="dotted_line">
+          </div>
+          <p class="left">
+          Their privacy and financial information and by using several online travel agents to compare prices and facilities at different hotels.
+          </p>
+          <a href="#">Learn more</a>
+        </div>
+        <div class="span3 features">
+          <i class="icon-circled icon-32 icon-leaf left"></i>
+          <h4>Booking Management</h4>
+          <div class="dotted_line">
+          </div>
+          <p class="left">
+          Prior to the Internet, travelers could write, telephone the hotel directly, or use a travel agent to make a reservation. Nowadays.
+          </p>
+          <a href="#">Learn more</a>
+        </div>
+        <div class="span3 features">
+          <i class="icon-circled icon-32 icon-wrench left"></i>
+          <h4>user management</h4>
+          <div class="dotted_line">
+          </div>
+          <p class="left">
+          Online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. 
+          </p>
+          <a href="#">Learn more</a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="span12">
+          <div class="tagline centered">
+            <div class="row">
+              <div class="span12">
+                <div class="tagline_text">
+                  <h2>Don't miss this special offer for limited time only! Book Hotel Now</h2>
+                  <p>
+                  Prior to the Internet, travelers could write, telephone the hotel directly, or use a travel agent to make a reservation. Nowadays, online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. Many also allow reviews of the traveler to be recorded with the online travel agent.
+                  </p>
+                </div>
+                <div class="btn-toolbar cta">
+                  <a class="btn btn-large btn-color" href="book_room.php">
+							<i class="icon-plane icon-white"></i> Book Your Hotel </a>
+                  <a class="btn btn-large btn-inverse" href="contact.php">
+							<i class="icon-shopping-cart icon-white"></i> Contact Us </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- end tagline -->
+        </div>
+      </div>
+      <div class="row">
+        <div class="home-posts">
+          <div class="span12">
+            <h3>Features of the Project</h3>
+          </div>
+          <div class="span3">
+            <div class="post-image">
+              <a href="post_right_sidebar.html">
+                <img src="assets/img/slides/sequence/img-1.jpg" alt="" style="height:160px; width:270px">
+              </a>
+            </div>
+            <!-- end .entry-meta -->
+            <div class="entry-body">
+              <a href="post_right_sidebar.html">
+                <h5 class="title">Room Management System</h5>
+              </a>
+              <p>
+              Online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. Many also allow reviews of the traveler to be recorded with the online travel agent.
+              </p>
+            </div>
+            <!-- end .entry-body -->
+            <div class="clear">
+            </div>
+          </div>
+          <div class="span3">
+            <div class="post-image">
+              <a href="#"><img src="assets/img/slides/sequence/img-2.jpg" alt="" style="height:160px; width:270px"></a>
+            </div>
+            <!-- end .entry-meta -->
+            <div class="entry-body">
+              <a href="post_right_sidebar.html">
+                <h5 class="title">User Management System</h5>
+              </a>
+              <p>
+              Online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. Many also allow reviews of the traveler to be recorded with the online travel agent.
+              </p>
+            </div>
+            <!-- end .entry-body -->
+            <div class="clear">
+            </div>
+          </div>
+          <div class="span3">
+            <div class="post-image">
+              <a href="#"><img src="assets/img/slides/sequence/img-3.jpg" alt="" style="height:160px; width:270px"></a>
+            </div>
+            <!-- end .entry-meta -->
+            <div class="entry-body">
+              <a href="post_right_sidebar.html">
+                <h5 class="title">Customer Management System</h5>
+              </a>
+              <p>
+              Online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. Many also allow reviews of the traveler to be recorded with the online travel agent.
+              </p>
+            </div>
+            <!-- end .entry-body -->
+            <div class="clear">
+            </div>
+          </div>
+         <div class="span3">
+            <div class="post-image">
+              <a href="#"><img src="assets/img/slides/sequence/img-4.jpg" alt="" style="height:160px; width:270px"></a>
+            </div>
+            <!-- end .entry-meta -->
+            <div class="entry-body">
+              <a href="post_right_sidebar.html">
+                <h5 class="title">Booking Management System</h5>
+              </a>
+              <p>
+              Online travel agents have pictures of hotels and rooms, information on prices and deals, and even information on local resorts. Many also allow reviews of the traveler to be recorded with the online travel agent.
+              </p>
+            </div>
+            <!-- end .entry-body -->
+            <div class="clear">
+            </div>
+          </div>
+              <!-- end flexslider -->
+            </div>
+            <!-- end .entry-body -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<?php include_once("includes/footer.php"); ?>
+
+
+Login.php
+
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[car_id])
+	{
+		$SQL="SELECT * FROM car WHERE car_id = $_REQUEST[car_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+?> 
+	<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>Login to Your Account</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+      <fieldset>
+         <legend>Login to Your Account</legend>
+         <?php if($_REQUEST['msg']) { ?>
+         <div class="alert alert-danger"><?=$_REQUEST['msg']?></div>
+         <?php } ?>
+         <form action="lib/login.php" method="post" name="frm_car" class="form-horizontal">
+            <div class="control-group">
+               <label class="control-label" for="inputEmail">Username</label> 
+               <div class="controls"><input name="user_user" type="text" class="bar" required />
+               </div>
+            </div>
+            <div class="control-group">
+               <label class="control-label" for="inputEmail">Password</label> 
+               <div class="controls"><input name="user_password" type="password" class="bar" required />
+               </div>
+            </div>
+            <div class="controls">
+               <a href='user.php' style="color:#790101; font-weight:bold;">Click here for register</a>
+            </div>
+            <div class="clear"></div>
+            <div class="control-group clear">
+               <div class="controls">
+                  <button type="submit" class="btn btn-primary">Login to Account</button> 
+                  <button type="reset" class="btn btn-primary">Reset Form</button>
+               </div>
+            </div>
+            <input type="hidden" name="act" value="check_login">
+         </form>
+      </fieldset>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Login_home.php
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[car_id])
+	{
+		$SQL="SELECT * FROM car WHERE car_id = $_REQUEST[car_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+?> 
+	<div class="crumb">
+    </div>
+    <div class="clear"></div>
+	<div id="content_sec">
+		<div class="col1">
+			<div class="contact">
+					<h4 class="heading colr">ID Card Administration Page</h4>
+					<div class='msg'><?=$_REQUEST['msg']?></div>
+					<ul class='login-home-listing'>
+						<li><a href="citizens-report.php">Citizen Report</a></li>
+						<li><a href="citizens.php">Add Citizen</a></li>
+						<li><a href="village-report.php">Village Report</a></li>
+						<li><a href="village.php">Add Village</a></li>
+						<li><a href="user.php">User Report</a></li>
+						<li><a href="user-report.php">Add User</a></li>
+						<li><a href="./user.php?user_id=<?php echo $_SESSION['user_details']['user_id']; ?>">My Account</a></li>
+						<li><a href="change-password.php">Change Password</a></li>
+						<li><a href="/lib/login.php?act=logout">Logout</a></li>
+					</ul>
+			</div>
+		</div>
+		<div class="col2">
+			<?php include_once("includes/sidebar.php"); ?> 
+		</div>
+	</div>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Make_payment.php
+
+<?php 
+	include_once("includes/header.php"); 
+	$R = $_REQUEST;
+	$SQL = "SELECT * FROM book WHERE book_id = '$_REQUEST[book_id]'";
+	$rs =  mysqli_query($con,$SQL) or die(mysqli_error($con));
+	$data = mysqli_fetch_assoc($rs);
+?> 
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>Selected Room Details</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+      <fieldset>
+      <legend>Make Payment</legend>
+      <div>
+         <div style="width:50%; float:left">
+            <form action="booking-confirmation.php"  class="form-horizontal">
+               <div class="control-group">
+                  <label class="control-label" for="inputEmail">Card Number</label> 
+                  <div class="controls"><input name="ddda" type="text" class="bar" required/>
+                  </div>
+               </div>
+               <div class="control-group">
+                  <label class="control-label" for="inputEmail">Name on Card</label> 
+                  <div class="controls"><input name="asdfdddds" type="text" class="bar" required/>
+                  </div>
+               </div>
+               <div class="control-group">
+                  <label class="control-label" for="inputEmail">Card Type</label> 
+                  <div class="controls">
+                     <select name = "credit_card_type" required>
+                        <option value="">Please Select</option>
+                        <option>MasterCard</option>
+                        <option>Visa Card</option>
+                        <option>Discover</option>
+                        <option>Maestro</option>
+                        <option>American Expresss</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="control-group">
+                  <label class="control-label" for="inputEmail">Expiry Date</label> 
+                  <div class="controls">
+                     <select style="float:left; width:127px;">
+                        <option>Month</option>
+                        <option>January</option>
+                        <option>February</option>
+                        <option>March</option>
+                        <option>April</option>
+                        <option>May</option>
+                        <option>June</option>
+                        <option>July</option>
+                        <option>August</option>
+                        <option>September</option>
+                        <option>October</option>
+                        <option>November</option>
+                        <option>December</option>
+                     </select>
+                     <select name = "exp_year" required style="float:left; width:105px; margin-left:9px;">
+                        <option>Year</option>
+                        <?php for($i=2016; $i<=2030; $i++) { ?>
+                        <option value="<?=$i?>"><?=$i?></option>
+                        <?php } ?>
+                     </select>
+                  </div>
+               </div>
+               <div class="control-group">
+                  <label class="control-label" for="inputEmail">CVV Number</label> 
+                  <div class="controls"><input name="in" type="password" class="bar" required/>
+                  </div>
+               </div>
+               <div class="control-group">
+                  <label class="control-label" for="inputEmail">Total Amount</label> 
+                  <div class="controls"><input name="in" type="text" class="bar" required value="<?=$data['book_total_amount']?>/-" readonly/>
+                  </div>
+               </div>
+               <div class="clear"></div>
+               <div class="control-group clear">
+                  <div class="controls">
+                     <input type="hidden" name="book_id" value="<?=$R[book_id]?>">
+                     <button type="submit" class="btn btn-primary">Make Payment</button> 
+                     <button type="reset" class="btn btn-primary">Reset Form</button>
+                  </div>
+               </div>
+            </form>
+         </div>
+         <div class="col2">
+            <div class="contactfinder">
+               <img src="./images/payment2.jpg" alt="" style="width:250px;margin-top:20px;"/>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+Room.php
+
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[room_id])
+	{
+		$SQL="SELECT * FROM `room` WHERE room_id = $_REQUEST[room_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+?>
+<section id="subintro">
+	<div class="jumbotron subhead" id="overview">
+		<div class="container">
+			<div class="row">
+			<div class="span12">
+				<div class="centered">
+					<h3>Room Entry Form</h3>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Room Entry Form</legend>
+				<?php if($_REQUEST['msg']) { ?>
+					<div class="msg"><?=$_REQUEST['msg']?></div>
+				<?php } ?>
+				<form action="lib/room.php" enctype="multipart/form-data" method="post" name="frm_room" class="form-horizontal my-forms">
+				<div class="control-group">
+						<label class="control-label" for="inputEmail">Select Room Type</label> 
+						<div class="controls">
+							<select name="room_category_id" class="bar" required/>
+								<?php echo get_new_optionlist("category","category_id","category_name",$data[room_category_id]); ?>
+							</select>
+							</div>
+					</div>					
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Room Title</label> 
+						<div class="controls">
+							<input name="room_title" id="room_title" type="text" class="bar" required value="<?=$data[room_title]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Room name</label> 
+						<div class="controls">
+							<input name="room_name" id="room_name" type="text" class="bar" required value="<?=$data[room_name]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Room No. Beds</label> 
+						<div class="controls"><input name="room_no_of_beds" id="room_no_of_beds" type="text" class="bar" required value="<?=$data[room_no_of_beds]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Max Adults</label> 
+						<div class="controls"><input name="room_max_adult" id="room_max_adult" type="text" class="bar" required value="<?=$data[room_max_adult]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Max Childs</label> 
+						<div class="controls"><input name="room_max_child" id="room_max_child" type="text" class="bar" required value="<?=$data[room_max_child]?>"/>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Room Fare</label> 
+						<div class="controls">
+					<input name="room_fare" id="room_fare" type="text" class="bar" required value="<?=$data[room_fare]?>"/>
+					</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Room Image</label> 
+						<div class="controls"><input name="room_image" type="file" class="bar"/>
+						</div>
+					</div>					
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Room Description</label> 
+						<div class="controls"><textarea name="room_description" cols="" rows="6" required><?=$data[room_description]?></textarea>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">Select Room Facility</label> 
+						<div class="controls" style="height:150px; overflow:scroll; width:250px;">
+							<?php echo get_checkbox("room_facility_id","facility","facility_id","facility_name",$data[room_facility_id]); ?>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<div class="control-group clear">
+						<div class="controls">
+							<button type="submit" class="btn btn-primary">Save Room</button> 
+							<button type="reset" class="btn btn-primary">Reset Form</button>
+						</div>
+					</div>
+					<input type="hidden" name="act" value="save_room">
+					<input type="hidden" name="avail_image" value="<?=$data[room_image]?>">
+					<input type="hidden" name="room_id" value="<?=$data[room_id]?>">
+					</form>
+					</fieldset>
+	</div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+Room_list.php
+
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	$SQL="SELECT * FROM room, category where room_category_id = category_id";
+	$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+	global $SERVER_PATH;
+?> 
+<section id="subintro">
+<div class="jumbotron subhead" id="overview">
+	<div class="container">
+		<div class="row">
+		<div class="span12">
+			<div class="centered">
+				<h3>Our Luxaries Rooms</h3>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend>Our Luxaries Rooms</legend>
+				<ul class="thumbnails"> 
+					<?php
+					$i=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					 	<li class="span4"> 
+							<div class="thumbnail"> 
+								<img src="<?=$SERVER_PATH.'uploads/'.$data[room_image]?>" alt=""> 
+								<div style="padding-left:20px;">
+								<h3><?=$data[category_name]?></h3> 
+								<p>
+									Room : <?=$data[room_title]?><br>
+									No of beds : <?=$data[room_no_of_beds]?><br>
+									Max Adults : <?=$data[room_max_adult]?><br>
+									Max Child : <?=$data[room_max_child]?><br>
+									Fare : <?=$data[room_fare]?><br>
+								</p> 
+								</div>
+							</div> 
+						</li>
+					<?php
+					}
+					?>
+					</ul>
+		</fieldset>
+	</div>
+</section>	
+<?php include_once("includes/footer.php"); ?>
+
+
+Room_report.php
+
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	$SQL="SELECT * FROM `room`,`category` WHERE room_category_id = category_id";
+	$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+?>
+<script>
+function delete_room(room_id)
+{
+	if(confirm("Do you want to delete the room?"))
+	{
+		this.document.frm_room.room_id.value=room_id;
+		this.document.frm_room.act.value="delete_room";
+		this.document.frm_room.submit();
+	}
+}
+</script>
+<script>
+jQuery(document).ready(function() {
+	jQuery('#mydatatable').DataTable();
+});
+</script>
+
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3>Room Report</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+			<?php
+			if($_REQUEST['msg']) { 
+			?>
+				<div class="msg"><?=$_REQUEST['msg']?></div>
+			<?php
+			}
+			?>
+			<form name="frm_room" action="lib/room.php" method="post">
+				<div class="static">
+					<table style="width:100%" id="mydatatable">
+					  <thead>
+					  <tr class="tablehead bold">
+						<td scope="col">Image</td>
+						<td scope="col">Room Number</td>
+						<td scope="col">Room Type</td>
+						<td scope="col">Beds</td>
+						<td scope="col">Max Adults</td>
+						<td scope="col">Max Childs</td>	
+						<td scope="col">Fare</td>							
+						<td scope="col">Action</td>
+					  </tr>
+						</thead>
+						<tbody>
+					<?php 
+					$sr_no=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					  <tr>
+						<td><img src="<?=$SERVER_PATH.'uploads/'.$data[room_image]?>" style="heigh:50px; width:50px"></td>
+						<td><?=$data[room_name]?></td>
+						<td><?=$data[category_name]?></td>
+						<td><?=$data[room_no_of_beds]?></td>
+						<td><?=$data[room_max_adult]?></td>
+						<td><?=$data[room_max_child]?></td>
+						<td><?=$data[room_fare]?></td>
+						<td style="text-align:center">
+							<a href="room.php?room_id=<?php echo $data[room_id] ?>" class="btn btn-success">Edit</a> | <a href="Javascript:delete_room(<?=$data[room_id]?>)" class="btn btn-danger">Delete</a> </td>
+						</td>
+					  </tr>
+					<?php } ?>
+					</tbody>
+					</table>
+				</div>
+				<input type="hidden" name="act" />
+				<input type="hidden" name="room_id" />
+				</form>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+User.php
+
+<?php 
+	include_once("includes/header.php"); 
+	if($_REQUEST[user_id])
+	{
+		$SQL="SELECT * FROM user WHERE user_id = $_REQUEST[user_id]";
+		$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+		$data=mysqli_fetch_assoc($rs);
+	}
+	if($_REQUEST['type'])
+	{
+		$data[user_level_id] = $_REQUEST['type'];
+	}
+	if($data['user_level_id'] == 1) $heading = "System User";
+	if($data['user_level_id'] == 2) $heading = "Customer";
+?> 
+<script>
+
+jQuery(function() {
+	jQuery( "#user_dob" ).datepicker({
+	  changeMonth: true,
+	  changeYear: true,
+	   yearRange: "-65:-10",
+	   dateFormat: 'd MM,yy'
+	});
+	jQuery('#frm_user').validate({
+		rules: {
+			user_confirm_password: {
+				equalTo: '#user_password'
+			}
+		}
+	});
+});
+function validateForm(obj) {
+	if(validateEmail(obj.user_email.value))
+		return true;
+	jQuery('#error-msg').show();
+	return false;
+}
+</script>
+<section id="subintro">
+	<div class="jumbotron subhead" id="overview">
+		<div class="container">
+			<div class="row">
+			<div class="span12">
+				<div class="centered">
+					<h3><?=$heading?> Registration Form</h3>
+				</div>
+			</div>
+			</div>
+		</div>
+	</div>
+</section>
+<section id="maincontent">
+   <div class="container">
+   		<fieldset>
+            <legend><?=$heading?> Registration Form</legend>
+				<?php
+				if($_REQUEST['msg']) { 
+				?>
+				<div class="msg"><?=$_REQUEST['msg']?></div>
+				<?php
+				}
+				?>
+				<div class="msg" style="display:none" id="error-msg">Enter valid EmailID !!!</div>
+				<form action="lib/user.php" enctype="multipart/form-data" method="post" name="frm_user" onsubmit="return validateForm(this)" class="form-horizontal my-forms">
+					<div class="control-group">
+						<label class="control-label" for="inputEmail">User Full Name</label> 
+						<div class="controls">
+							<input name="user_name" type="text" class="bar" required value="<?=$data[user_name]?>"/>
+						</div>
+					</div>
+					<?php if($_SESSION['user_details']['user_level_id'] == 1) {?>
+						<div class="control-group">
+							<label class="control-label" for="inputEmail">User Role</label> 
+							<div class="controls">
+								<select name="user_level_id" id="user_level_id" class="bar" required/>
+									<?php echo get_new_optionlist("role","role_id","role_name",$data[user_level_id]); ?>
+								</select>
+							</div>
+						</div>
+					<?php } if(!(isset($_REQUEST['user_id'])) || $_REQUEST['user_id'] == "")  { ?>
+						<div class="control-group">
+							<label class="control-label" for="inputEmail">Username</label> 
+							<div class="controls">
+								<input name="user_username" type="text" class="bar" required value="<?=$data[user_username]?>"/>
+							</div>
+						</div>
+					
+						<div class="control-group">
+							<label class="control-label" for="inputEmail">User Password</label> 
+							<div class="controls">
+								<input name="user_password" id="user_password" type="password" class="bar" required value="<?=$data[user_password]?>"/>
+							</div>
+						</div>
+						<div class="control-group">
+							<label class="control-label" for="inputEmail">Confirm Password</label> 
+							<div class="controls">
+								<input name="user_confirm_password" id="user_confirm_password" type="password" class="bar" required value="<?=$data[user_password]?>"/>
+							</div>
+						</div>
+					<?php } ?>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">User Mobile</label> 
+							<div class="controls">
+							<input name="user_mobile" type="text" class="bar" required value="<?=$data[user_mobile]?>"/>
+							</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">User Email ID</label> 
+							<div class="controls"><input name="user_email" id="user_email" type="text" class="bar" required value="<?=$data[user_email]?>" onchange="validateEmail(this)" /></div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">Date of Birth</label> 
+							<div class="controls"><input name="user_dob" id="user_dob" type="text" class="bar" required value="<?=$data[user_dob]?>"/>
+							</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">Address Line 1</label> 
+							<div class="controls"><input name="user_add1" type="text" class="bar" required value="<?=$data[user_add1]?>"/>
+					</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">Address Line 2</label> 
+							<div class="controls"><input name="user_add2" type="text" class="bar" required value="<?=$data[user_add2]?>"/>
+							</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">User City</label> 
+							<div class="controls">
+							<select name="user_city" class="bar" required/>
+								<?php echo get_new_optionlist("city","city_id","city_name",$data[user_city]); ?>
+							</select>
+							</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">User State</label> 
+							<div class="controls">
+							<select name="user_state" class="bar" required/>
+								<?php echo get_new_optionlist("state","state_id","state_name",$data[user_state]); ?>
+							</select>
+							</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">User Country</label> 
+							<div class="controls">
+							<select name="user_country" class="bar" required/>
+								<?php echo get_new_optionlist("country","country_id","country_name",$data[user_country]); ?>
+							</select>
+							</div>
+					</div>
+					<div class="control-group">
+							<label class="control-label" for="inputEmail">User Image</label> 
+							<div class="controls">
+						<input name="user_image" type="file" class="bar"/>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<div class="control-group clear">
+						<div class="controls"><button type="submit" class="btn btn-primary">Save User</button> </div>
+					</div>
+					<input type="hidden" name="act" value="save_user">
+					<input type="hidden" name="avail_image" value="<?=$data[user_image]?>">
+					<input type="hidden" name="user_id" value="<?=$data[user_id]?>">
+					</fieldset>
+				</form>
+				</fieldset>
+	</div>
+</section>
+<?php
+	if($_SESSION['user_details']['user_level_id'] != 1)
+	{
+?>
+	<script>
+		jQuery( "#user_level_id" ).val(3);
+		jQuery( "#user_level" ).hide();
+	</script>
+<?php		
+	}
+?>
+<?php include_once("includes/footer.php"); ?>
+
+
+User_report.php
+
+<?php 
+	include_once("includes/header.php"); 
+	include_once("includes/db_connect.php"); 
+	$SQL="SELECT * FROM user WHERE user_level_id = '$_REQUEST[type]'";
+	$rs= mysqli_query($con,$SQL) or die(mysqli_error($con));
+	if($_REQUEST['type'] == 1) $heading = "System User";
+	if($_REQUEST['type'] == 2) $heading = "Customer";
+	global $SERVER_PATH;
+?>
+<script>
+function delete_user(user_id)
+{
+	if(confirm("Do you want to delete the user?"))
+	{
+		this.document.frm_user.user_id.value=user_id;
+		this.document.frm_user.act.value="delete_user";
+		this.document.frm_user.submit();
+	}
+}
+</script>
+	<script>
+jQuery(document).ready(function() {
+	jQuery('#mydatatable').DataTable();
+});
+</script>
+
+<section id="subintro">
+   <div class="jumbotron subhead" id="overview">
+      <div class="container">
+         <div class="row">
+            <div class="span12">
+               <div class="centered">
+                  <h3><?=$heading?> Reports</h3>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+<section id="maincontent">
+   <div class="container">
+			<?php
+			if($_REQUEST['msg']) { 
+			?>
+				<div class="msg"><?=$_REQUEST['msg']?></div>
+			<?php
+			}
+			?>
+			<form name="frm_user" action="lib/user.php" method="post">
+				<div class="static">
+					<table style="width:100%" id="mydatatable">
+					 <thead>
+					  <tr class="tablehead bold">
+						<td scope="col">Sr. No.</td>
+						<td scope="col">Image</td>
+						<td scope="col">Name</td>
+						<td scope="col">Mobile</td>
+						<td scope="col">Email</td>
+						<td scope="col">Date Of Birth</td>
+						<td scope="col">Action</td>
+					  </tr>
+						</thead>
+						<tbody>
+					<?php 
+					$sr_no=1;
+					while($data = mysqli_fetch_assoc($rs))
+					{
+					?>
+					  <tr>
+						<td style="text-align:center; font-weight:bold;"><?=$sr_no++?></td>
+						<td><img src="<?=$SERVER_PATH.'uploads/'.$data[user_image]?>" style="heigh:50px; width:50px"></td>
+						<td><?=$data[user_name]?></td>
+						<td><?=$data[user_mobile]?></td>
+						<td><?=$data[user_email]?></td>
+						<td><?=$data[user_dob]?></td>
+						<td style="text-align:center"><a href="user.php?user_id=<?php echo $data[user_id] ?>" class="btn btn-success">Edit</a> | <a href="Javascript:delete_user(<?=$data[user_id]?>)" class="btn btn-danger">Delete</a> </td>
+					  </tr>
+					<?php } ?>
+					</tbody>
+					</table>
+				</div>
+				<input type="hidden" name="act" />
+				<input type="hidden" name="user_id" />
+				</form>
+   </div>
+</section>
+<?php include_once("includes/footer.php"); ?>
+
+
+
+
+
